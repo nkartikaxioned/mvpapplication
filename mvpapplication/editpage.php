@@ -17,8 +17,8 @@
   $name = $gender = $lastname = $email = $phoneno = $password = $errorMsg = "";
   $genderErrorFlag = $emailerrorflag = $nameerrorflag = $passErrorFlag = $phoneerrorflag = 0;
 
-  if (isset($_GET['userid'])) {
-    $edit_id = $_GET['userid'];
+  if (isset($_GET['id'])) {
+    $edit_id = $_GET['id'];
     $editsql = "SELECT * FROM users WHERE id = $edit_id";
     $editstmt = mysqli_query($dbconnection, $editsql);
 

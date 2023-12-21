@@ -22,7 +22,6 @@
     $stmt->execute();
     $stmt->store_result();
     $count = $stmt->num_rows;
-    print_r($count);
     $stmt->close();
     if ($count > 0) {
       try {

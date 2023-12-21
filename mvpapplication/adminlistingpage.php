@@ -85,18 +85,6 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
     exit();
   }
   ?>
-  <script>
-    function confirmDelete() {
-      if (confirm("Are you sure you want to delete this record?")) {
-        window.location.href = 'delete.php?id=<?php echo $result['id']; ?>&confirm=yes';
-      }
-    }
-    function confirmApprove(id) {
-      if (confirm("Are you sure you want to Approve this record?")) {
-        window.location.href = `approve.php?id='${id}'+confirm=yes`;
-      }
-    }
-  </script>
   </body>
 
   </html>
