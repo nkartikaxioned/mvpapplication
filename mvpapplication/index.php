@@ -1,46 +1,126 @@
-<!doctype html>
-<!-- If multi-language site, reconsider usage of html lang declaration here. -->
-<html lang="en"> 
+<?php
+session_start();
+
+if (isset($_SESSION['sessionID']) && $_SESSION['sessionID'] === $_COOKIE['sessionID']) {
+  if ($_SESSION['user'] === 'admin') {
+    header("Location: adminlistingpage.php");
+  } else {
+    header("Location: view.php");
+  }
+  exit();
+}
+
+$email = $password = $errorMsg = $passwordErr = $emailErr = "";
+$emailErrorFlag = $passErrorFlag = 0;
+
+function validateInput($data)
+{
+  $data = trim($data);
+  // $data = htmlspecialchars($data);
+  return $data;
+}
+
+function validatePassword($password)
+{
+  global $passErrorFlag;
+  $password = validateInput($password);
+  if (empty($password)) {
+    $passErrorFlag = 1;
+    return "Password is required";
+  } elseif (!preg_match("/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@#$%^&+=!])[A-Za-z\d@#$%^&+=!]{8,}$/", $password)) {
+    $passErrorFlag = 1;
+    return "Enter a valid password";
+  }
+  $passErrorFlag = 0;
+  return "";
+}
+
+function validateEmail($conn, $email)
+{
+  global $emailErrorFlag;
+  $email = validateInput($email);
+  if (empty($email)) {
+    $emailErrorFlag = 1;
+    return "Email is required";
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $emailErrorFlag = 1;
+    return "Invalid email format";
+  }
+  $emailErrorFlag = 0;
+  return "";
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  require_once("dbconnect.php");
+  $email = $_POST['email'];
+  $password = $_POST['password'];
+  $emailErrorFlag = $passErrorFlag = 0;
+  $emailErr = validateEmail($dbconnection, $email);
+  $passwordErr = validatePassword($password);
+  
+  function loginUser($username, $sessionID, $redirectLocation) {
+    $_SESSION['user'] = $username;
+    $_SESSION['sessionID'] = $sessionID;
+    setcookie('sessionID', $sessionID, time() + 3600, '/', '', false, true);
+    header("Location: $redirectLocation");
+    exit();
+}
+  if ($emailErrorFlag === 0 && $passErrorFlag === 0) {
+    try {
+      $sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_approved = 1";
+      $stmt = mysqli_prepare($dbconnection, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $email, $password);
+      mysqli_stmt_execute($stmt);
+      mysqli_stmt_store_result($stmt);
+      $rowCount = mysqli_stmt_num_rows($stmt);
+      var_dump($rowCount);
+      $sessionID = bin2hex(random_bytes(32));
+      $_SESSION["logged"] = "OK";
+      if ($email === "admin@email.com" && $password === "P@ssw0rd") {
+        loginUser('admin', $sessionID, 'adminlistingpage.php');
+    } elseif ($rowCount > 0) {
+        loginUser('user', $sessionID, 'view.php');
+    } else {
+      $errorMsg = "Invalid username and password!";
+      session_destroy();
+    }
+    } catch (Exception $e) {
+      $errorMsg = "Error: " . $e->getMessage();
+    }
+  }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>Client</title>
-  <!-- View-port Basics: http://mzl.la/VYREaP -->
-  <!-- This meta tag is used for mobile device to display the page without any zooming,
-       so how much the device is able to fit on the screen is what's shown initially. 
-       Remove comments from this tag, when you want to apply media queries to the website. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <!-- Place favicon.ico in the root directory: mathiasbynens.be/notes/touch-icons -->
-  <link rel="shortcut icon" href="favicon.ico" />
-  <!--font-awesome link for icons-->
-  <link rel="stylesheet" media="screen" href="assets/vendor/font-awesome/css/all.min.css" >
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <!-- Default style-sheet is for 'media' type screen (color computer display).  -->
-  <link rel="stylesheet" media="screen" href="assets/css/style.css" >
+  <meta charset="UTF-8">
+  <title>LOGIN</title>
+  <!-- Add your meta tags and links here -->
 </head>
 
 <body>
-  <!--container start-->
   <div class="container">
-    <!--header section start-->
     <header>
-      
+      <h1 style="font-weight:bold; font-size:25px;">Login Page</h1><br>
     </header>
-    <!--header section start-->
-    <!--main section start-->
     <main>
-
+      <section class="login-form">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+          <label for="email">Email :</label>
+          <input type="text" name="email" value="<?php echo htmlspecialchars($email); ?>">
+          <span class="error"><?php echo $emailErr; ?></span><br><br>
+          <label for="password">Password :</label>
+          <input type="password" name="password">
+          <span class="error"><?php echo $passwordErr; ?></span><br><br>
+          <input type="submit" value="Submit">&nbsp;
+          <a href="./register.php">Register</a>
+        </form>
+      </section>
+      <p class="main-error"><?php echo isset($errorMsg) ? $errorMsg : ''; ?></p>
     </main>
-    <!--main section end-->
-
-    <!--footer section start-->
-    <footer>      
-
-    </footer>
-    <!--footer section end-->
-
-  </div>
-  <!--container end-->
-  <script src="assets/js/script.js"></script>
+  </div> 
 </body>
+
 </html>
