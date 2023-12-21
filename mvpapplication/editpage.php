@@ -1,10 +1,6 @@
-<?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-?>
 <?php require_once("dbconnect.php"); ?>
 <?php
-if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
+ if ($_COOKIE['sessionID']) {
   ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -221,8 +217,8 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
 
 </html>
 <?php
-}else{
-  header("Location: index.php");
-    exit();
-}
+ }else{
+   header("Location: index.php");
+     exit();
+ }
  ?>

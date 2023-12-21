@@ -52,7 +52,6 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
             </tr>
             <?php
             while ($result = mysqli_fetch_assoc($stmt)) {
-              $id = $result['id'];
               echo "
                 <tr>
                     <td>" . $result['name'] . "</td>
@@ -61,8 +60,8 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
                     <td>" . $result['email'] . "</td>
                     <td>" . $result['gender'] . "</td>
                     <td>" . $result['is_approved'] . "</td>
-                    <td><a href='editpage.php?userid={$result['id']}'>Edit</a> | <a href='#FIXME'  onclick='confirmDelete()'>Delete</a></td>
-                    <td><a href='#FIXME'  onclick='confirmApprove()'>Approve</a></td>
+                    <td><a href='editpage.php?id={$result['id']}'>Edit</a> | <a href='delete.php?id={$result['id']}'>Delete</a></td>
+                    <td><a href='approve.php?id={$result['id']}'>Approve</a></td>
                 </tr>
                 ";
             }
@@ -87,14 +86,14 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
   }
   ?>
   <script>
-    function confirmDelete(id) {
+    function confirmDelete() {
       if (confirm("Are you sure you want to delete this record?")) {
-        window.location.href = 'delete.php?id=<?php echo $id; ?>&confirm=yes';
+        window.location.href = 'delete.php?id=<?php echo $result['id']; ?>&confirm=yes';
       }
     }
-    function confirmApprove() {
+    function confirmApprove(id) {
       if (confirm("Are you sure you want to Approve this record?")) {
-        window.location.href = 'approve.php?id=<?php echo $id; ?>&confirm=yes';
+        window.location.href = `approve.php?id='${id}'+confirm=yes`;
       }
     }
   </script>

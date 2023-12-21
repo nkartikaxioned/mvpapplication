@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('dbconnect.php');
-if ($_SESSION["logged"] === "OK" && isset($_SESSION['sessionID']) || isset($_COOKIE['sessionID'])) {
+if (isset($_SESSION['sessionID']) || isset($_COOKIE['sessionID'])) {
 
   if (isset($_POST['logout'])) {
     $_SESSION = array();

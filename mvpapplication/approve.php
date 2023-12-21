@@ -9,13 +9,18 @@ if ($_SESSION['user'] === 'admin' && $_COOKIE['sessionID']) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+        function confirmApprove() {
+          return confirm("Do you want to Aprove this record?");
+        }
+    </script>
 </head>
 <body>
     <?php 
 $id = $_GET['id'];
 $adminid=1;
 if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
-   $updatesql = 'UPDATE users SET is_approved = 1 WHERE id = ?';
+   $updatesql = "UPDATE users SET is_approved = 1 WHERE id = ?";
    $resultUpdate = mysqli_prepare($dbconnection, $updatesql);
    if (!$resultUpdate) {
     throw new Exception("Error in preparing statement" . mysqli_connect($dbconnection));
@@ -23,8 +28,8 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
   mysqli_stmt_bind_param($resultUpdate, "i", $id);
   $result = mysqli_stmt_execute($resultUpdate);
 
-   $sql = 'INSERT INTO user_approvals (user_id, approved_by)
-VALUES (?,?)';
+   $sql = "INSERT INTO user_approvals (user_id, approved_by)
+VALUES (?,?)";
 $resultInsert = mysqli_prepare($dbconnection, $sql);
 if (!$resultInsert) {
     throw new Exception("Error in preparing statement" . mysqli_connect($dbconnection));
@@ -42,6 +47,13 @@ if ($resultUpdate && $resultInsert) {
 mysqli_close($dbconnection);
 }
     ?>
+    <script>
+        if (confirmApprove()) {
+            window.location.href = 'approve.php?id=<?php echo $id; ?>&confirm=yes';
+        } else {
+            window.location.href = 'adminlistingpage.php';
+        }
+    </script>
 </body>
 </html>
 <?php
